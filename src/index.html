@@ -3,8 +3,50 @@
 </head>
 
 <body>
-    Hello World！
-    <script src="./static/layui/layui.js"></script>
+    <div id="app">
+        <div class="layout__menu">
+            <i-menu :active-name="activedMenu" :open-names="['1']">
+                <menu-item name="首页" @click.native='toggleMenu("首页")'>首页</menu-item>
+                <Submenu name="2">
+                    <template slot="title">
+                        分类1
+                    </template>
+                    <menu-item name="分页1" @click.native='toggleMenu("分页1")' ref="分页1" url='./table.html'>分页1</menu-item>
+                    <menu-item name="分页2" @click.native='toggleMenu("分页2")' ref="分页2" url='./table.html'>分页2</menu-item>
+                    <Submenu name="3">
+                        <template slot="title">分页3</template>
+                        <menu-item name="分页4" @click.native='toggleMenu("分页4")' ref="分页4" url='./table.html'>分页4</menu-item>
+                        <menu-item name="分页5" @click.native='toggleMenu("分页5")' ref="分页5" url='./table.html'>分页5</menu-item>
+                    </Submenu>
+                </Submenu>
+                <Submenu name="4">
+                    <template slot="title">
+                        分类2
+                    </template>
+                    <menu-item name="分页21" @click.native='toggleMenu("分页21")' ref="分页21" url='./table.html'>分页21</menu-item>
+                    <menu-item name="分页22" @click.native='toggleMenu("分页22")' ref="分页22" url='./table.html'>分页22</menu-item>
+                    <menu-item name="分页23" @click.native='toggleMenu("分页23")' ref="分页23" url='./table.html'>分页23</menu-item>
+                    <menu-item name="分页24" @click.native='toggleMenu("分页24")' ref="分页24" url='./table.html'>分页24</menu-item>
+                </Submenu>
+            </i-menu>
+        </div>
+        <div class="layout__tab">
+            <Tabs type="card" :value='activedMenu' @on-tab-remove='removeTab' @on-click='changeTab'>
+                <template v-for='(tab,index) in tabArr'>
+                    <tab-pane :label="tab.name" :name='tab.name' v-if='index == 0 && tab.show'>
+                        <iframe :src="tab.url" frameborder="0"></iframe>
+                    </tab-pane>
+                    <tab-pane :label="tab.name" :name='tab.name' closable v-else>
+                        <iframe :src="tab.url" frameborder="0"></iframe>
+                    </tab-pane>
+                </template>
+            </Tabs>
+        </div>
+    </div>
+
+
+    <!-- import iView -->
+    <script src="//unpkg.com/iview/dist/iview.min.js"></script>
     <script src="./assets/js/index.min.js"></script>
 </body>
 

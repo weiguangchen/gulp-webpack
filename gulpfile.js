@@ -4,6 +4,7 @@ const postcss = require('gulp-postcss'); /* postcss */
 const autoprefixer = require('autoprefixer'); /* 自动添加前缀 */
 const px2rem = require('postcss-px2rem'); /* px转rem */
 const cssmin = require('gulp-cssmin'); /* 压缩css */
+const wait = require('gulp-wait');
 
 const babel = require('gulp-babel'); /* babel转es6 */
 const jsmin = require('gulp-uglify'); /* 压缩js */
@@ -12,18 +13,21 @@ const bs = require('browser-sync').create(); /* 热更新 */
 const reload = bs.reload;
 const fileinclude = require('gulp-file-include'); /* 合并html */
 const clean = require('gulp-clean'); /* 清理文件插件 */
-const plumber = require('gulp-plumber');/* 防止编译出错跳出watch */
-const watch = require('gulp-watch');/* 监听新建文件 */
+const plumber = require('gulp-plumber'); /* 防止编译出错跳出watch */
+const watch = require('gulp-watch'); /* 监听新建文件 */
 
 const assetRev = require('gulp-asset-rev');
 const rev = require('gulp-rev');
 const revCollector = require('gulp-rev-collector');
 const runSequence = require('run-sequence'); /* gulp同步执行任务 */
 const path = require('path');
+
+const webpack = require('webpack-stream');
 /* 开发地址 */
 const es = './src/assets/js/**/*.js';
 const scss = './src/assets/scss/**/*.scss';
 const html = './src/*.html';
+const tpl = './src/assets/tpl/**/*.html';
 const static = './src/static/**/*';
 /* 打包地址 */
 const css = './dist/assets/css';
@@ -33,19 +37,45 @@ const js = './dist/assets/js';
 // var htmlrev = dist + '/view';
 // var images = app + '/images/**/*.img';
 
+
+
+
 // 开启本地服务器
 gulp.task('serve', ['build'], function () {
     bs.init({
         server: './dist'
     })
     gulp.watch(scss, ['postcss']);
-    gulp.watch(es, ['es6']);
-    watch(html,()=>{
+    gulp.watch(static, ['static'])
+    // gulp.watch(es, ['es6']);
+    watch(['./src/assets/vue/**/*.vue', es],()=>{
+        gulp.start('webpack')
+    });
+    watch([html, tpl], () => {
         gulp.start('fileinclude')
     })
+
     // gulp.watch(html, ['fileinclude'])
-    gulp.watch(html).on('change', reload);
+    gulp.watch([html, tpl]).on('change', reload);
 })
+
+const fs = require('fs');
+let entry = (function () {
+    /* 获取入口文件 */
+    return fs.readdirSync(path.resolve(__dirname, './src/assets/js'));
+})()
+gulp.task('webpack', () => {
+    console.log('webpack')
+    return gulp.src(entry)
+        .pipe(plumber())
+        .pipe(webpack(require('./webpack.config')))
+        .pipe(reload({
+            stream: true
+        }))
+        .pipe(gulp.dest(js))
+})
+
+
 
 // 合并template模板
 gulp.task('fileinclude', () => {
@@ -60,6 +90,7 @@ gulp.task('fileinclude', () => {
 // 编译scss
 gulp.task('postcss', () => {
     return gulp.src(scss)
+        .pipe(wait(200))
         .pipe(plumber())
         .pipe(sass())
         .pipe(postcss([autoprefixer({
@@ -80,21 +111,21 @@ gulp.task('postcss', () => {
 });
 
 // 编译es6
-gulp.task('es6', () => {
-    return gulp.src(es)
-        .pipe(plumber())
-        .pipe(babel({
-            presets: ['es2015']
-        }))
-        .pipe(jsmin())
-        .pipe(rename({
-            suffix: '.min'
-        }))
-        .pipe(reload({
-            stream: true
-        }))
-        .pipe(gulp.dest(js));
-})
+// gulp.task('es6', () => {
+//     return gulp.src(es)
+//         .pipe(plumber())
+//         .pipe(babel({
+//             presets: ['es2015']
+//         }))
+//         .pipe(jsmin())
+//         .pipe(rename({
+//             suffix: '.min'
+//         }))
+//         .pipe(reload({
+//             stream: true
+//         }))
+//         .pipe(gulp.dest(js));
+// })
 /* 移动静态资源 */
 gulp.task('static', () => {
     return gulp.src(static)
@@ -108,7 +139,7 @@ gulp.task('clean', () => {
 })
 /* 打包编译 */
 gulp.task('build', ['clean'], () => {
-    gulp.start('postcss', 'es6', 'fileinclude', 'static');
+    gulp.start('webpack', 'postcss', 'fileinclude', 'static');
 })
 
 //为css中引入的图片/字体等添加hash编码

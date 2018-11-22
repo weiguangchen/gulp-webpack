@@ -1,0 +1,78 @@
+$prefix:'layout';
+.#{$prefix}__menu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    width: 240px;
+    height: 100%;
+    .ivu-menu{
+        height: 100%;
+    }
+}
+
+.#{$prefix}__tab {
+    position: fixed;
+    left: 250px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 999;
+    .ivu-tabs{
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    }
+    .ivu-tabs-content{
+        position: absolute;
+        top: 40px;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        .ivu-tabs-tabpane{
+            padding: 10px;
+            width: 100%;
+            height: 100%;
+        }
+        iframe{
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    }
+    .layui-tab-content {
+        position: absolute;
+        top: 50px;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    }
+    .layui-tab-title{
+        .indexpage{
+            .layui-tab-close{
+                display: none;
+            }
+        }
+    }
+}
+
+.#{$prefix}__content {
+    position: fixed;
+    top: 50px;
+    right: 0;
+    z-index: 999;
+    width: 100%;
+    left: 200px;
+}
+
+.#{$prefix}__iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
